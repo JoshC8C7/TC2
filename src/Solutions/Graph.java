@@ -1,3 +1,5 @@
+package Solutions;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -7,12 +9,15 @@ import java.util.HashSet;
 
 public class Graph {
 
-  private HashMap<City,HashSet<Edge>> neighboursCache; //defunct
+  //todo: Replace core graph structure searching with hashmap where pair is key so need only to
+  //todo: search for (dep,dest) and (dest,dep) keys rather than iterating.
+
+  private HashMap<City,HashSet<Edge>> neighboursCache;
   private HashSet<Edge> masterGraph;
   private HashSet<City> masterCities;
 
 
-  Graph(){
+  Graph(String filename){
     masterCities = new HashSet<>();
     masterGraph = new HashSet<>();
     neighboursCache = new HashMap<>();
@@ -27,6 +32,19 @@ public class Graph {
       System.out.println("Read Error");
       e.printStackTrace();
     }
+  }
+
+  Graph(){
+    masterCities = new HashSet<>();
+    masterGraph = new HashSet<>();
+    neighboursCache = new HashMap<>();
+  }
+
+  Graph(HashSet<City> cities){
+    masterCities = cities;
+    masterGraph = new HashSet<>();
+    neighboursCache = new HashMap<>();
+
   }
 
   class City {
@@ -50,7 +68,7 @@ public class Graph {
         neighboursCache.put(this,localEdgeList);
         return localEdgeList;
       }
-    } //defunct
+    }
   }
 
   class Edge  {
@@ -100,8 +118,18 @@ public class Graph {
       }
     }
 
-    //todo does virtualedge need adding to master list?
+    //todo does virtualedge need adding to master list & neighbourcache
     return new virtualEdge(a,b,penalty);
+  }
+
+   Edge edgeFinder(City a, City b){ //todo - update to new system
+     for (Edge e : masterGraph) {
+       //find edge a-b
+       if ((e.dest == a && e.dep == b) || (e.dest == b && e.dep == a)) {
+         return e;
+       }
+     }
+     return null;
   }
 
   class Solution { //todo annotate
@@ -163,4 +191,21 @@ public class Graph {
       length = findTotalLength();
     }
   }
+
+  void addCity(City a){
+    masterCities.add(a);
+  }
+
+  void addEdge(Edge e){
+    masterGraph.add(e);
+  }
+
+  HashSet<Edge> getEdges(){
+    return masterGraph;
+  }
+
+  HashSet<City> getCities(){
+    return masterCities;
+  }
+
 }
