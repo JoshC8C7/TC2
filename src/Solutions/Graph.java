@@ -15,6 +15,7 @@ public class Graph {
   private HashMap<City,HashSet<Edge>> neighboursCache;
   private HashSet<Edge> masterGraph;
   private HashSet<City> masterCities;
+  //Solution solution;
 
 
   Graph(String filename){
@@ -134,12 +135,10 @@ public class Graph {
 
   class Solution { //todo annotate
     private ArrayList<Edge> solutionEdges;
-    private float prevBest;
-    private float length;
+
 
     Solution(){
       solutionEdges = new ArrayList<>();
-      float prevBest = Float.MAX_VALUE;
       float length;
     }
     void add(Edge k){
@@ -153,16 +152,9 @@ public class Graph {
       return total;
     }
 
-    float getPrevBest(){
-      return prevBest;
-    }
-    float getLength(){
-      return length;
-    }
 
     void exchange(City a, City b, int penalty){
       //swap city a and b in the solution.
-      prevBest = findTotalLength(); //Keep track of current value to return after.
       int abIndex = -1;
       //Need x-a-b-y -> x-b-a-y
       for (Edge e : solutionEdges) {
@@ -188,7 +180,6 @@ public class Graph {
         solutionEdges.set(abIndex-1,XB);
         solutionEdges.set(abIndex+1,AY);
         //Edge AB remains as its only been reversed.
-      length = findTotalLength();
     }
   }
 

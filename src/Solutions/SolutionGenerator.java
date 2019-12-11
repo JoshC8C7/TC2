@@ -1,8 +1,10 @@
 package Solutions;
 import Solutions.Graph.*;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.PriorityQueue;
 import javafx.util.Pair;
@@ -14,7 +16,7 @@ public class SolutionGenerator {
   // the 'junction' points only.
   //todo:
   //3. Use Simulated Annealing to generate path:
-  // a. generate initial solution randomly
+  // a. generate initial solution pseudorandomly
   // b. loop until cool/good-enough solution
   // c. Make small change (exchange two cities)
   // d. Decide whether to move
@@ -137,6 +139,7 @@ public class SolutionGenerator {
   }
 
   private void mstWalkerRecursive(City origin, City c, Edge e, Float total) {
+    //todo Handle pass by reference instead of having intermediate arrays as state.
     if (!seenEdges.contains(e)) {
       seenEdges.add(e); //If outward edge hasnt already been traversed
       total += e.getDuration(); //add it to walk
@@ -167,7 +170,46 @@ public class SolutionGenerator {
 
 
   private void annealing(){
+    // Use Simulated Annealing to generate path:
+    // a. generate initial solution pseudorandomly
+    // b. loop until cool/good-enough solution
+    // c. Make small change (exchange two cities)
+    // d. Decide whether to move
+    // e. decrease temperature, continue
 
+
+
+    //a. generate initial solution pseudorandomly.
+    // From MST perform preorder traversal (DFS) with backtracking. Will be cost of <2*optimal,
+    //which is much closer to full optimal than a random inital solution will be.
+
+    //Create inital solution
+    Solution initialSolution = new graph.Solution();
+
+
+    //Extract 'first' (random) city from mst.
+    Iterator iter = mst.getCities().iterator();
+    City root = (City) iter.next();
+
+    //Perform recursive dfs. visit(solution to write to, root to start from, edgeIn)
+    //For initial call, start at randomly chosen root. Has not come from any edge so pass null.
+    visit(initialSolution,root,null);
+    
+  }
+
+  private void visit(Solution solution, City c, Edge edgeIn){
+    //Visit takes a city and the edge into it, and iterates over all edges out of the city
+    //(except for the edge taken in as this would cause a cycle) visiting all of those in turn.
+    //"Visiting" means adding edge into it to solution, visiting from that city, then when that
+    //recursion is complete visiting the edge taken in again as to backtrack.
+    for (Edge e: c.getNeighbourEdges()){
+      if (e != edgeIn) { //
+        solution.add(e);
+        City nextcity = (e.getDep() == c) ? e.getDest() : e.getDep();
+        visit(solution, nextcity, e);
+        solution.add(e); //For backtracking. so for a->b->...->b->a add ab, recurse, then ab.
+      }
+    }
   }
 
 }
